@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Writing Coach Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f5;
+  --surface:#fff;
+  --surface2:#f8fafc;
+  --border:#e2e8f0;
+  --border2:#cbd5e1;
+  --accent:#4f46e5;
+  --accent-light:#eef2ff;
+  --accent-dark:#3730a3;
+  --text:#1a202c;
+  --text-mid:#64748b;
+  --text-dim:#94a3b8;
+  --success:#059669;
+  --success-bg:#ecfdf5;
+  --warning:#d97706;
+  --warning-bg:#fffbeb;
+  --danger:#dc2626;
+  --danger-bg:#fef2f2;
+  --purple:#7c3aed;
+  --purple-bg:#f5f3ff;
+  --cyan:#0891b2;
+  --cyan-bg:#ecfeff;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Inter',sans-serif;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1),0 1px 4px rgba(0,0,0,.06);
+}
+body{background:var(--bg);font-family:var(--sans);color:var(--text);min-height:100vh;font-size:14px}
+
+/* ── APP SHELL ── */
+.shell{display:grid;grid-template-columns:260px 1fr;grid-template-rows:56px 1fr;min-height:100vh}
+
+/* ── TOP BAR ── */
+.topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:16px;position:sticky;top:0;z-index:200}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+.logo-name{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.logo-tag{font-size:10px;font-weight:600;background:var(--accent-light);color:var(--accent);padding:2px 7px;border-radius:10px;letter-spacing:.04em}
+.api-row{display:flex;align-items:center;gap:8px}
+.api-row label{font-size:11px;color:var(--text-dim);font-family:var(--mono);font-weight:500;white-space:nowrap}
+.api-row input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-family:var(--mono);font-size:12px;color:var(--text);width:210px;outline:none;transition:border-color .2s}
+.api-row input:focus{border-color:var(--accent)}
+.api-status-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:background .3s;flex-shrink:0}
+.api-status-dot.on{background:var(--success)}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-section{padding:16px 16px 8px;font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;border-radius:0;transition:background .15s;font-size:13px;font-weight:500;color:var(--text-mid);margin:1px 0}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent)}
+.nav-item-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;font-family:var(--mono)}
+
+.sidebar-divider{height:1px;background:var(--border);margin:8px 16px}
+
+/* Stats in sidebar */
+.stat-card{margin:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.stat-row:last-child{margin-bottom:0}
+.stat-label{font-size:11px;color:var(--text-mid)}
+.stat-val{font-size:13px;font-weight:700;color:var(--text);font-family:var(--mono)}
+.stat-val.good{color:var(--success)}
+.stat-val.bad{color:var(--danger)}
+
+.weak-spot{margin:6px 12px}
+.weak-spot-title{font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;padding:0 4px;margin-bottom:6px}
+.weak-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.weak-bar-label{font-size:11px;color:var(--text-mid);width:72px;flex-shrink:0}
+.weak-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.weak-bar-fill{height:100%;border-radius:3px;background:var(--danger)}
+.weak-bar-num{font-size:10px;font-family:var(--mono);color:var(--text-dim);width:18px;text-align:right;flex-shrink:0}
+
+/* ── MAIN PANEL ── */
+.main{display:flex;flex-direction:column;overflow:hidden}
+
+/* ── EDITOR TOP ── */
+.editor-top{display:grid;grid-template-columns:1fr 1fr;flex:1;overflow:hidden}
+
+/* Editor pane */
+.editor-pane{display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--surface)}
+.editor-toolbar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.editor-toolbar-label{font-size:12px;font-weight:600;color:var(--text)}
+.scene-select{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:12px;color:var(--text);outline:none;cursor:pointer;font-family:var(--sans)}
+.scene-select:focus{border-color:var(--accent)}
+.readability-pill{margin-left:auto;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text-mid);display:flex;align-items:center;gap:5px;white-space:nowrap}
+.readability-pill.easy{background:var(--success-bg);border-color:#bbf7d0;color:var(--success)}
+.readability-pill.medium{background:var(--warning-bg);border-color:#fde68a;color:var(--warning)}
+.readability-pill.hard{background:var(--danger-bg);border-color:#fecaca;color:var(--danger)}
+
+.editor-area{flex:1;position:relative;overflow:hidden}
+textarea.editor{width:100%;height:100%;border:none;outline:none;resize:none;padding:20px;font-family:var(--sans);font-size:14px;line-height:1.85;color:var(--text);background:var(--surface)}
+textarea.editor::placeholder{color:var(--text-dim)}
+
+.editor-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.meta-pills{display:flex;gap:8px;flex:1}
+.meta-pill{font-size:11px;color:var(--text-dim);font-family:var(--mono)}
+.analyze-btn{padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.analyze-btn:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,70,229,.35)}
+.analyze-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.clear-btn{padding:9px 14px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-mid);cursor:pointer;transition:all .2s}
+.clear-btn:hover{background:var(--surface2);border-color:var(--border2)}
+
+/* Result pane */
+.result-pane{display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+.result-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;gap:0;flex-shrink:0}
+.result-tab{padding:12px 14px;font-size:12px;font-weight:500;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.result-tab:hover{color:var(--text)}
+.result-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-cnt{background:var(--accent-light);color:var(--accent);font-size:10px;font-weight:700;padding:1px 5px;border-radius:8px;font-family:var(--mono)}
+.result-body{flex:1;overflow-y:auto;padding:16px}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow)}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:8px}
+.card-title{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-mid)}
+.card-body{padding:16px}
+
+/* Score bar */
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.score-cell{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.score-cell-label{font-size:10px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.score-cell-val{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.score-cell-val.great{color:var(--success)}
+.score-cell-val.ok{color:var(--warning)}
+.score-cell-val.poor{color:var(--danger)}
+.score-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
+.score-bar-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.fill-great{background:var(--success)}
+.fill-ok{background:var(--warning)}
+.fill-poor{background:var(--danger)}
+
+/* Corrected output */
+.corrected-text{font-size:14px;line-height:1.9;color:var(--text)}
+.copy-btn{margin-top:12px;padding:7px 14px;background:none;border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--text-mid);cursor:pointer;transition:all .2s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+
+/* Error items */
+.error-item{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.error-item:last-child{margin-bottom:0}
+.err-top{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.err-type-badge{font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.badge-grammar{background:#fee2e2;color:#991b1b}
+.badge-expression{background:#f5f3ff;color:#5b21b6}
+.badge-spelling{background:#fffbeb;color:#92400e}
+.badge-tone{background:#ecfeff;color:#155e75}
+.badge-structure{background:#f0fdf4;color:#14532d}
+.err-original{font-size:13px;color:var(--danger);font-family:var(--mono);line-height:1.5;text-decoration:line-through;text-decoration-color:rgba(220,38,38,.35)}
+.err-bottom{padding:12px 14px}
+.err-fix{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.err-arrow{color:var(--success);font-size:14px;flex-shrink:0;margin-top:2px}
+.err-corrected{font-size:13px;color:var(--success);font-family:var(--mono);font-weight:500;line-height:1.5}
+.err-why{font-size:12px;color:var(--text-mid);line-height:1.6;background:var(--surface2);border-radius:6px;padding:8px 10px;border-left:3px solid var(--border2)}
+
+/* Pattern rule card (learning note) */
+.rule-card{background:var(--accent-light);border:1px solid #c7d2fe;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.rule-card:last-child{margin-bottom:0}
+.rule-title{font-size:12px;font-weight:700;color:var(--accent-dark);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.rule-body{font-size:12px;color:#3730a3;line-height:1.6}
+.rule-example{font-family:var(--mono);font-size:11px;background:#fff;border:1px solid #c7d2fe;border-radius:5px;padding:6px 10px;margin-top:6px;color:var(--accent-dark)}
+
+/* Phrase items */
+.phrase-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.phrase-item:last-child{margin-bottom:0}
+.phrase-tag{font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.ptag-business{background:var(--accent-light);color:var(--accent-dark)}
+.ptag-email{background:var(--success-bg);color:#065f46}
+.ptag-meeting{background:var(--purple-bg);color:#5b21b6}
+.ptag-general{background:var(--surface2);color:var(--text-mid);border:1px solid var(--border)}
+.phrase-en{font-size:14px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-bottom:3px;line-height:1.4}
+.phrase-cn{font-size:12px;color:var(--text-mid);margin-bottom:5px}
+.phrase-ex{font-size:12px;color:var(--text-dim);font-style:italic;border-top:1px solid var(--border);padding-top:5px;margin-top:3px;line-height:1.5}
+.phrase-tip{font-size:11px;color:var(--text-dim);margin-top:4px}
+
+/* History */
+.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.hist-item:hover{border-color:var(--accent);box-shadow:var(--shadow-md)}
+.hist-item:last-child{margin-bottom:0}
+.hist-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.hist-date{font-size:11px;color:var(--text-dim);font-family:var(--mono)}
+.hist-score{font-size:12px;font-weight:700;font-family:var(--mono)}
+.hist-preview{font-size:12px;color:var(--text-mid);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.5}
+.hist-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.hist-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+.del-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:4px;transition:color .2s}
+.del-btn:hover{color:var(--danger)}
+
+/* Empty / loading states */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--text-dim);text-align:center;padding:32px}
+.empty-icon{font-size:36px;opacity:.35}
+.empty-title{font-size:14px;font-weight:500;color:var(--text-mid)}
+.empty-sub{font-size:12px;line-height:1.6}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.loading{display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px}
+.loading.on{display:flex}
+.loading-text{font-size:13px;color:var(--text-mid);font-weight:500}
+.loading-sub{font-size:11px;color:var(--text-dim)}
+
+/* Error alert */
+.err-alert{background:var(--danger-bg);border:1px solid #fecaca;border-radius:8px;padding:12px 14px;font-size:13px;color:var(--danger);margin-bottom:12px;display:none}
+.err-alert.on{display:block}
+
+/* Readability metrics row */
+.readability-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.read-cell{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
+.read-cell-label{font-size:10px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.read-cell-val{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text);margin-top:2px}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">✍</div>
+    <div>
+      <div class="logo-name">Writing Coach Pro</div>
+    </div>
+    
+  </div>
+  <div class="api-row">
+    <label>API KEY</label>
+    <input type="password" id="apiKey" placeholder="sk-ant-..." oninput="onApiInput()">
+    <div class="api-status-dot" id="apiDot"></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-section">Workspace</div>
+  <div class="nav-item active" onclick="showView('editor')" id="nav-editor">
+    <span class="nav-item-icon">✏️</span> Editor
+  </div>
+  <div class="nav-item" onclick="showView('history')" id="nav-history">
+    <span class="nav-item-icon">🕐</span> History
+    <span class="nav-badge" id="histBadge" style="display:none">0</span>
+  </div>
+  <div class="nav-item" onclick="showView('phrasebook')" id="nav-phrasebook">
+    <span class="nav-item-icon">📚</span> My Phrasebook
+    <span class="nav-badge" id="pbBadge" style="display:none">0</span>
+  </div>
+
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">My Progress</div>
+
+  <div class="stat-card">
+    <div class="stat-row">
+      <span class="stat-label">Sessions</span>
+      <span class="stat-val" id="statSessions">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Avg Score</span>
+      <span class="stat-val" id="statAvg">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Errors fixed</span>
+      <span class="stat-val good" id="statFixed">0</span>
+    </div>
+  </div>
+
+  <div class="weak-spot">
+    <div class="weak-spot-title">Weak spots</div>
+    <div class="weak-bar-row">
+      <span class="weak-bar-label">Grammar</span>
+      <div class="weak-bar"><div class="weak-bar-fill" id="wb-grammar" style="width:0%"></div></div>
+      <span class="weak-bar-num" id="wn-grammar">0</span>
+    </div>
+    <div class="weak-bar-row">
+      <span class="weak-bar-label">Expression</span>
+      <div class="weak-bar"><div class="weak-bar-fill" id="wb-expression" style="width:0%;background:var(--purple)"></div></div>
+      <span class="weak-bar-num" id="wn-expression">0</span>
+    </div>
+    <div class="weak-bar-row">
+      <span class="weak-bar-label">Spelling</span>
+      <div class="weak-bar"><div class="weak-bar-fill" id="wb-spelling" style="width:0%;background:var(--warning)"></div></div>
+      <span class="weak-bar-num" id="wn-spelling">0</span>
+    </div>
+    <div class="weak-bar-row">
+      <span class="weak-bar-label">Tone</span>
+      <div class="weak-bar"><div class="weak-bar-fill" id="wb-tone" style="width:0%;background:var(--cyan)"></div></div>
+      <span class="weak-bar-num" id="wn-tone">0</span>
+    </div>
+    <div class="weak-bar-row">
+      <span class="weak-bar-label">Structure</span>
+      <div class="weak-bar"><div class="weak-bar-fill" id="wb-structure" style="width:0%;background:var(--success)"></div></div>
+      <span class="weak-bar-num" id="wn-structure">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- EDITOR VIEW -->
+  <div id="view-editor" class="editor-top">
+
+    <!-- Left: input -->
+    <div class="editor-pane">
+      <div class="editor-toolbar">
+        <span class="editor-toolbar-label">Writing scene:</span>
+        <select class="scene-select" id="sceneSelect">
+          <option value="professional_email">📧 Professional Email</option>
+          <option value="meeting">🎤 Meeting / Conference</option>
+          <option value="technical_report">📋 Technical Report</option>
+          <option value="quotation">💼 Quotation / RFQ</option>
+          <option value="general">✍ General Writing</option>
+        </select>
+        <div class="readability-pill" id="readabilityPill">— Readability</div>
+      </div>
+      <div class="editor-area">
+        <textarea class="editor" id="inputText"
+          placeholder="Type or paste your English here...&#10;&#10;Tip: the more you write, the more the AI can help you improve. Try a full email or meeting summary."
+          oninput="onTextInput()"></textarea>
+      </div>
+      <div class="editor-footer">
+        <div class="meta-pills">
+          <span class="meta-pill" id="wordCount">0 words</span>
+          <span class="meta-pill">·</span>
+          <span class="meta-pill" id="sentCount">0 sentences</span>
+        </div>
+        <button class="clear-btn" onclick="clearEditor()">Clear</button>
+        <button class="analyze-btn" id="analyzeBtn" onclick="analyze()" disabled>
+          <span id="btnTxt">✦ Analyze</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right: results -->
+    <div class="result-pane">
+      <div class="result-tabs">
+        <div class="result-tab active" onclick="switchTab('corrected')" id="rt-corrected">✓ Corrected</div>
+        <div class="result-tab" onclick="switchTab('errors')" id="rt-errors">
+          ⚡ Errors <span class="tab-cnt" id="errCnt" style="display:none">0</span>
+        </div>
+        <div class="result-tab" onclick="switchTab('notes')" id="rt-notes">
+          📖 Learning Notes <span class="tab-cnt" id="notesCnt" style="display:none">0</span>
+        </div>
+        <div class="result-tab" onclick="switchTab('phrases')" id="rt-phrases">
+          💡 Phrases <span class="tab-cnt" id="phrasesCnt" style="display:none">0</span>
+        </div>
+      </div>
+
+      <div class="result-body" id="rb-corrected">
+        <div class="loading" id="ld-corrected"><div class="spinner"></div><div class="loading-text">Analyzing your writing…</div><div class="loading-sub">Checking grammar, tone, naturalness</div></div>
+        <div id="corrected-content"><div class="empty"><div class="empty-icon">✍️</div><div class="empty-title">Start writing on the left</div><div class="empty-sub">Choose your scene, write your text,<br>and click Analyze to get feedback.</div></div></div>
+      </div>
+      <div class="result-body" id="rb-errors" style="display:none">
+        <div class="loading" id="ld-errors"><div class="spinner"></div><div class="loading-text">Finding errors…</div></div>
+        <div id="errors-content"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Error analysis will appear here</div></div></div>
+      </div>
+      <div class="result-body" id="rb-notes" style="display:none">
+        <div class="loading" id="ld-notes"><div class="spinner"></div><div class="loading-text">Building learning notes…</div></div>
+        <div id="notes-content"><div class="empty"><div class="empty-icon">📖</div><div class="empty-title">Grammar rules & learning notes</div><div class="empty-sub">Targeted notes based on your mistakes,<br>easy to review later.</div></div></div>
+      </div>
+      <div class="result-body" id="rb-phrases" style="display:none">
+        <div class="loading" id="ld-phrases"><div class="spinner"></div><div class="loading-text">Extracting native phrases…</div></div>
+        <div id="phrases-content"><div class="empty"><div class="empty-icon">💡</div><div class="empty-title">Native phrases to learn & reuse</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY VIEW -->
+  <div id="view-history" style="display:none;flex:1;overflow-y:auto;padding:24px">
+    <div style="max-width:720px;margin:0 auto">
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">History</div>
+      <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px">Your past writing sessions. Click any entry to reload it.</div>
+      <div class="err-alert" id="histAlert"></div>
+      <div id="histList"><div class="empty"><div class="empty-icon">🕐</div><div class="empty-title">No sessions yet</div><div class="empty-sub">Analyze some writing and it'll appear here.</div></div></div>
+    </div>
+  </div>
+
+  <!-- PHRASEBOOK VIEW -->
+  <div id="view-phrasebook" style="display:none;flex:1;overflow-y:auto;padding:24px">
+    <div style="max-width:720px;margin:0 auto">
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">My Phrasebook</div>
+      <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px">All native expressions collected across your sessions.</div>
+      <div id="pbList"><div class="empty"><div class="empty-icon">📚</div><div class="empty-title">No phrases saved yet</div><div class="empty-sub">Analyze writing and phrases will be collected here automatically.</div></div></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── STATE ──
+let history = JSON.parse(localStorage.getItem('ewc_history') || '[]');
+let phrasebook = JSON.parse(localStorage.getItem('ewc_phrasebook') || '[]');
+let errorCounts = JSON.parse(localStorage.getItem('ewc_errcounts') || '{"grammar":0,"expression":0,"spelling":0,"tone":0,"structure":0}');
+let currentView = 'editor';
+let currentTab = 'corrected';
+
+// ── INIT ──
+updateSidebarStats();
+updateHistBadge();
+updatePbBadge();
+
+// ── API ──
+// Load saved API key
+(function() {
+  const saved = localStorage.getItem('ewc_apikey');
+  if (saved) {
+    document.getElementById('apiKey').value = saved;
+    const ready = saved.startsWith('sk-ant-') && saved.length > 20;
+    document.getElementById('apiDot').className = ready ? 'api-status-dot on' : 'api-status-dot';
+  }
+})();
+
+function onApiInput() {
+  const k = document.getElementById('apiKey').value.trim();
+  const ready = k.startsWith('sk-ant-') && k.length > 20;
+  document.getElementById('apiDot').className = ready ? 'api-status-dot on' : 'api-status-dot';
+  if (ready) localStorage.setItem('ewc_apikey', k);
+  else localStorage.removeItem('ewc_apikey');
+  updateAnalyzeBtn();
+}
+
+function updateAnalyzeBtn() {
+  const k = document.getElementById('apiKey').value.trim();
+  const t = document.getElementById('inputText').value.trim();
+  document.getElementById('analyzeBtn').disabled = !(k.startsWith('sk-ant-') && k.length > 20 && t.length > 10);
+}
+
+// ── TEXT INPUT ──
+function onTextInput() {
+  const t = document.getElementById('inputText').value;
+  const words = t.trim() ? t.trim().split(/\s+/).length : 0;
+  const sents = t.trim() ? (t.match(/[.!?]+/g) || []).length : 0;
+  document.getElementById('wordCount').textContent = words + ' words';
+  document.getElementById('sentCount').textContent = sents + ' sentences';
+  updateReadabilityPill(t);
+  updateAnalyzeBtn();
+}
+
+function updateReadabilityPill(t) {
+  const pill = document.getElementById('readabilityPill');
+  if (!t.trim()) { pill.className = 'readability-pill'; pill.textContent = '— Readability'; return; }
+  const words = t.trim().split(/\s+/);
+  const sentences = t.split(/[.!?]+/).filter(s => s.trim().length > 3);
+  if (!sentences.length) { pill.className = 'readability-pill'; pill.textContent = '— Readability'; return; }
+  const avgWordLen = words.reduce((s,w) => s + w.replace(/[^a-z]/gi,'').length, 0) / words.length;
+  const avgSentLen = words.length / sentences.length;
+  // Simple Flesch approximation
+  const score = Math.max(0, Math.min(100, 206 - 1.015 * avgSentLen - 84.6 * (avgWordLen / 5)));
+  if (score >= 60) { pill.className = 'readability-pill easy'; pill.textContent = '✓ Easy to read'; }
+  else if (score >= 40) { pill.className = 'readability-pill medium'; pill.textContent = '⚡ Moderate'; }
+  else { pill.className = 'readability-pill hard'; pill.textContent = '⚠ Hard to read'; }
+}
+
+// ── NAVIGATION ──
+function showView(v) {
+  ['editor','history','phrasebook'].forEach(name => {
+    document.getElementById('view-' + name).style.display = 'none';
+    document.getElementById('nav-' + name).classList.remove('active');
+  });
+  document.getElementById('view-' + v).style.display = v === 'editor' ? 'grid' : 'block';
+  document.getElementById('nav-' + v).classList.add('active');
+  currentView = v;
+  if (v === 'history') renderHistory();
+  if (v === 'phrasebook') renderPhrasebook();
+}
+
+function switchTab(name) {
+  ['corrected','errors','notes','phrases'].forEach(t => {
+    document.getElementById('rb-' + t).style.display = 'none';
+    document.getElementById('rt-' + t).classList.remove('active');
+  });
+  document.getElementById('rb-' + name).style.display = 'block';
+  document.getElementById('rt-' + name).classList.add('active');
+  currentTab = name;
+}
+
+// ── ANALYZE ──
+async function analyze() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const text = document.getElementById('inputText').value.trim();
+  const scene = document.getElementById('sceneSelect').value;
+  if (!apiKey || !text) return;
+
+  // Show loading on all tabs
+  ['corrected','errors','notes','phrases'].forEach(t => {
+    document.getElementById(t + '-content').style.display = 'none';
+    document.getElementById('ld-' + t).classList.add('on');
+  });
+  switchTab('corrected');
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('btnTxt').textContent = '⏳ Analyzing…';
+
+  const sceneLabels = {
+    professional_email: 'professional business email',
+    meeting: 'meeting communication / conference call',
+    technical_report: 'technical engineering report',
+    quotation: 'quotation or RFQ document',
+    general: 'general professional writing'
+  };
+
+  const prompt = `You are an expert English writing coach for Chinese professionals in the automotive manufacturing industry. Analyze the following ${sceneLabels[scene]} written by a non-native English speaker.
+
+Text:
+"""
+${text}
+"""
+
+Return ONLY a valid JSON object (no markdown, no extra text) with this structure:
+{
+  "overall_score": <0-100>,
+  "grammar_score": <0-100>,
+  "naturalness_score": <0-100>,
+  "clarity_score": <0-100>,
+  "corrected": "<full corrected, natural, professional version>",
+  "errors": [
+    {
+      "type": "<grammar|expression|spelling|tone|structure>",
+      "original": "<exact wrong phrase>",
+      "corrected": "<correct version>",
+      "explanation": "<explanation in Chinese — what is wrong and how to remember>"
+    }
+  ],
+  "learning_notes": [
+    {
+      "title": "<short rule title in English>",
+      "explanation": "<explanation in Chinese>",
+      "wrong_example": "<wrong>",
+      "right_example": "<correct>"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "<native English phrase>",
+      "cn": "<Chinese meaning>",
+      "example": "<example sentence>",
+      "tag": "<business|email|meeting|general>",
+      "tip": "<optional usage tip in Chinese>"
+    }
+  ]
+}
+
+Be thorough: find ALL errors, no matter how small. learning_notes should summarize the patterns behind the errors as reusable grammar rules. phrases should be 6-10 native expressions the user should add to their toolkit.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || res.statusText); }
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '';
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+
+    // Hide loaders
+    ['corrected','errors','notes','phrases'].forEach(t => {
+      document.getElementById('ld-' + t).classList.remove('on');
+      document.getElementById(t + '-content').style.display = 'block';
+    });
+
+    renderCorrected(parsed);
+    renderErrors(parsed.errors || []);
+    renderNotes(parsed.learning_notes || []);
+    renderPhrases(parsed.phrases || []);
+
+    // Save to history & phrasebook
+    saveSession(text, parsed, scene);
+    savePhrasebook(parsed.phrases || []);
+    updateErrorCounts(parsed.errors || []);
+    updateSidebarStats();
+    updateHistBadge();
+    updatePbBadge();
+
+  } catch(e) {
+    ['corrected','errors','notes','phrases'].forEach(t => {
+      document.getElementById('ld-' + t).classList.remove('on');
+      document.getElementById(t + '-content').style.display = 'block';
+    });
+    document.getElementById('corrected-content').innerHTML =
+      `<div class="err-alert on">⚠ ${h(e.message || 'Error. Please try again.')}</div>`;
+  } finally {
+    document.getElementById('analyzeBtn').disabled = false;
+    document.getElementById('btnTxt').textContent = '✦ Analyze';
+    updateAnalyzeBtn();
+  }
+}
+
+// ── RENDER ──
+function renderCorrected(d) {
+  const scores = [
+    {label:'Overall', val:d.overall_score},
+    {label:'Grammar', val:d.grammar_score},
+    {label:'Naturalness', val:d.naturalness_score},
+    {label:'Clarity', val:d.clarity_score}
+  ];
+  const scoreHtml = scores.map(s => {
+    const cls = s.val >= 80 ? 'great' : s.val >= 60 ? 'ok' : 'poor';
+    const fillCls = 'fill-' + cls;
+    return `<div class="score-cell">
+      <div class="score-cell-label">${s.label}</div>
+      <div class="score-cell-val ${cls}">${s.val ?? '—'}</div>
+      <div class="score-bar"><div class="score-bar-fill ${fillCls}" style="width:${s.val ?? 0}%"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('corrected-content').innerHTML = `
+    <div class="score-grid">${scoreHtml}</div>
+    <div class="card">
+      <div class="card-header"><span style="font-size:14px">✅</span><span class="card-title">Corrected Version</span></div>
+      <div class="card-body">
+        <div class="corrected-text">${h(d.corrected||'').replace(/\n/g,'<br>')}</div>
+        <button class="copy-btn" onclick="copyTxt(${JSON.stringify(d.corrected||'')})">📋 Copy corrected text</button>
+      </div>
+    </div>`;
+}
+
+function renderErrors(errors) {
+  const cnt = document.getElementById('errCnt');
+  if (!errors.length) {
+    cnt.style.display = 'none';
+    document.getElementById('errors-content').innerHTML = `<div class="empty"><div class="empty-icon">🎉</div><div class="empty-title">No errors found!</div><div class="empty-sub">Great writing. Check the Phrases tab for useful expressions.</div></div>`;
+    return;
+  }
+  cnt.textContent = errors.length; cnt.style.display = 'inline-block';
+  const typeMap = {grammar:'badge-grammar',expression:'badge-expression',spelling:'badge-spelling',tone:'badge-tone',structure:'badge-structure'};
+  document.getElementById('errors-content').innerHTML =
+    `<div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;font-weight:500">${errors.length} issue${errors.length>1?'s':''} found</div>` +
+    errors.map(e => `
+    <div class="error-item">
+      <div class="err-top">
+        <span class="err-type-badge ${typeMap[e.type]||'badge-grammar'}">${e.type}</span>
+        <span class="err-original">${h(e.original)}</span>
+      </div>
+      <div class="err-bottom">
+        <div class="err-fix"><span class="err-arrow">→</span><span class="err-corrected">${h(e.corrected)}</span></div>
+        <div class="err-why">💡 ${h(e.explanation)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderNotes(notes) {
+  const cnt = document.getElementById('notesCnt');
+  if (!notes.length) { cnt.style.display='none'; document.getElementById('notes-content').innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">No notes this time</div></div>`; return; }
+  cnt.textContent = notes.length; cnt.style.display='inline-block';
+  document.getElementById('notes-content').innerHTML =
+    `<div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;font-weight:500">Grammar rules to remember — save these!</div>` +
+    notes.map(n => `
+    <div class="rule-card">
+      <div class="rule-title">📌 ${h(n.title)}</div>
+      <div class="rule-body">${h(n.explanation)}</div>
+      <div class="rule-example">
+        ✗ ${h(n.wrong_example)}<br>
+        ✓ ${h(n.right_example)}
+      </div>
+    </div>`).join('');
+}
+
+function renderPhrases(phrases) {
+  const cnt = document.getElementById('phrasesCnt');
+  if (!phrases.length) { cnt.style.display='none'; document.getElementById('phrases-content').innerHTML=`<div class="empty"><div class="empty-icon">💡</div><div class="empty-title">No phrases this time</div></div>`; return; }
+  cnt.textContent=phrases.length; cnt.style.display='inline-block';
+  const tagMap = {business:'ptag-business',email:'ptag-email',meeting:'ptag-meeting',general:'ptag-general'};
+  document.getElementById('phrases-content').innerHTML =
+    `<div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;font-weight:500">${phrases.length} expressions added to your Phrasebook</div>` +
+    phrases.map(p => `
+    <div class="phrase-item">
+      <span class="phrase-tag ${tagMap[p.tag]||'ptag-general'}">${p.tag||'general'}</span>
+      <div style="flex:1">
+        <div class="phrase-en">${h(p.en)}</div>
+        <div class="phrase-cn">${h(p.cn)}</div>
+        ${p.example?`<div class="phrase-ex">"${h(p.example)}"</div>`:''}
+        ${p.tip?`<div class="phrase-tip">💡 ${h(p.tip)}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ── HISTORY ──
+function saveSession(text, result, scene) {
+  const entry = {
+    id: Date.now(),
+    date: new Date().toLocaleString('zh-CN'),
+    scene,
+    text,
+    result,
+    score: result.overall_score
+  };
+  history.unshift(entry);
+  if (history.length > 50) history = history.slice(0,50);
+  localStorage.setItem('ewc_history', JSON.stringify(history));
+}
+
+function renderHistory() {
+  const list = document.getElementById('histList');
+  if (!history.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🕐</div><div class="empty-title">No sessions yet</div></div>`;
+    return;
+  }
+  const sceneIcon = {professional_email:'📧',meeting:'🎤',technical_report:'📋',quotation:'💼',general:'✍'};
+  list.innerHTML = history.map(e => {
+    const cls = e.score>=80?'good':e.score>=60?'ok':'bad';
+    return `<div class="hist-item" onclick="loadSession('${e.id}')">
+      <div class="hist-top">
+        <span class="hist-date">${e.date}</span>
+        <span class="hist-score score-cell-val ${cls}">${e.score}/100</span>
+        <button class="del-btn" onclick="event.stopPropagation();deleteSession('${e.id}')">✕</button>
+      </div>
+      <div class="hist-preview">${h(e.text)}</div>
+      <div class="hist-tags">
+        <span class="hist-tag" style="background:var(--accent-light);color:var(--accent)">${sceneIcon[e.scene]||'✍'} ${e.scene.replace(/_/g,' ')}</span>
+        <span class="hist-tag" style="background:var(--danger-bg);color:var(--danger)">${(e.result.errors||[]).length} errors</span>
+        <span class="hist-tag" style="background:var(--success-bg);color:var(--success)">${(e.result.phrases||[]).length} phrases</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadSession(id) {
+  const entry = history.find(e => String(e.id) === String(id));
+  if (!entry) return;
+  document.getElementById('inputText').value = entry.text;
+  onTextInput();
+  showView('editor');
+  ['corrected','errors','notes','phrases'].forEach(t => {
+    document.getElementById(t+'-content').style.display='block';
+    document.getElementById('ld-'+t).classList.remove('on');
+  });
+  renderCorrected(entry.result);
+  renderErrors(entry.result.errors||[]);
+  renderNotes(entry.result.learning_notes||[]);
+  renderPhrases(entry.result.phrases||[]);
+  switchTab('corrected');
+}
+
+function deleteSession(id) {
+  history = history.filter(e => String(e.id) !== String(id));
+  localStorage.setItem('ewc_history', JSON.stringify(history));
+  updateHistBadge();
+  updateSidebarStats();
+  renderHistory();
+}
+
+function updateHistBadge() {
+  const b = document.getElementById('histBadge');
+  if (history.length) { b.style.display='inline-block'; b.textContent=history.length; }
+  else b.style.display='none';
+}
+
+// ── PHRASEBOOK ──
+function savePhrasebook(phrases) {
+  phrases.forEach(p => {
+    if (!phrasebook.find(x => x.en === p.en)) phrasebook.push(p);
+  });
+  localStorage.setItem('ewc_phrasebook', JSON.stringify(phrasebook));
+}
+
+function renderPhrasebook() {
+  const list = document.getElementById('pbList');
+  if (!phrasebook.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">No phrases saved yet</div><div class="empty-sub">Phrases are collected automatically when you analyze writing.</div></div>`;
+    return;
+  }
+  const tagMap = {business:'ptag-business',email:'ptag-email',meeting:'ptag-meeting',general:'ptag-general'};
+  list.innerHTML = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:16px;font-weight:500">${phrasebook.length} expressions in your personal bank</div>` +
+    phrasebook.map((p,i) => `
+    <div class="phrase-item">
+      <span class="phrase-tag ${tagMap[p.tag]||'ptag-general'}">${p.tag||'general'}</span>
+      <div style="flex:1">
+        <div class="phrase-en">${h(p.en)}</div>
+        <div class="phrase-cn">${h(p.cn)}</div>
+        ${p.example?`<div class="phrase-ex">"${h(p.example)}"</div>`:''}
+        ${p.tip?`<div class="phrase-tip">💡 ${h(p.tip)}</div>`:''}
+      </div>
+      <button class="del-btn" onclick="deletePhrase(${i})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+function deletePhrase(i) {
+  phrasebook.splice(i,1);
+  localStorage.setItem('ewc_phrasebook', JSON.stringify(phrasebook));
+  updatePbBadge();
+  renderPhrasebook();
+}
+
+function updatePbBadge() {
+  const b = document.getElementById('pbBadge');
+  if (phrasebook.length) { b.style.display='inline-block'; b.textContent=phrasebook.length; }
+  else b.style.display='none';
+}
+
+// ── SIDEBAR STATS ──
+function updateErrorCounts(errors) {
+  errors.forEach(e => {
+    if (errorCounts[e.type] !== undefined) errorCounts[e.type]++;
+  });
+  localStorage.setItem('ewc_errcounts', JSON.stringify(errorCounts));
+}
+
+function updateSidebarStats() {
+  const sessions = history.length;
+  const avg = sessions ? Math.round(history.reduce((s,e)=>s+(e.score||0),0)/sessions) : null;
+  const fixed = history.reduce((s,e)=>s+(e.result?.errors?.length||0),0);
+  document.getElementById('statSessions').textContent = sessions;
+  document.getElementById('statAvg').textContent = avg !== null ? avg : '—';
+  document.getElementById('statAvg').className = 'stat-val' + (avg>=80?' good':avg>=60?'':' bad');
+  document.getElementById('statFixed').textContent = fixed;
+
+  // Weak spot bars
+  const types = ['grammar','expression','spelling','tone','structure'];
+  const max = Math.max(1, ...types.map(t => errorCounts[t]||0));
+  types.forEach(t => {
+    const v = errorCounts[t] || 0;
+    document.getElementById('wb-'+t).style.width = (v/max*100)+'%';
+    document.getElementById('wn-'+t).textContent = v;
+  });
+}
+
+// ── UTILS ──
+function clearEditor() {
+  document.getElementById('inputText').value='';
+  onTextInput();
+  ['corrected','errors','notes','phrases'].forEach(t => {
+    document.getElementById(t+'-content').innerHTML = '';
+    document.getElementById('ld-'+t).classList.remove('on');
+  });
+  document.getElementById('corrected-content').innerHTML=`<div class="empty"><div class="empty-icon">✍️</div><div class="empty-title">Start writing on the left</div><div class="empty-sub">Choose your scene, write your text,<br>and click Analyze to get feedback.</div></div>`;
+  document.getElementById('errors-content').innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Error analysis will appear here</div></div>`;
+  document.getElementById('notes-content').innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">Grammar rules & learning notes</div></div>`;
+  document.getElementById('phrases-content').innerHTML=`<div class="empty"><div class="empty-icon">💡</div><div class="empty-title">Native phrases to learn & reuse</div></div>`;
+  ['errCnt','notesCnt','phrasesCnt'].forEach(id=>{ document.getElementById(id).style.display='none'; });
+  switchTab('corrected');
+}
+
+function copyTxt(t) {
+  navigator.clipboard.writeText(t).then(()=>{
+    const b = event.target; b.textContent='✅ Copied!';
+    setTimeout(()=>b.textContent='📋 Copy corrected text',2000);
+  });
+}
+
+function h(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
